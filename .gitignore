@@ -1,0 +1,16 @@
+#class files
+*.class
+#jar
+*.jar
+#log
+*.log
+
+#dirs
+doc/
+target/
+.settings/
+
+#misc
+.classpath
+.project
+mainfest.mf
