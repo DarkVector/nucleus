@@ -1,19 +1,13 @@
 package net.adil.nucleus;
 
-import java.net.InetSocketAddress;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.ChannelException;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.apache.log4j.*;
 
 import net.adil.nucleus.database.Datastore;
+import net.adil.nucleus.network.PipelineFactory;
+
 import net.adil.nucleus.util.Configurator;
 
 /*
@@ -38,6 +32,7 @@ public class Nucleus
 	public static Configurator cfg = new Configurator();
 	private static final Logger logger = Logger.getLogger(Nucleus.class.getName());
 	public static ExecutorService executorService;
+	private static PipelineFactory pipelineFactory = new PipelineFactory();
 	
 	
 	public static void main(String[] args)
@@ -45,37 +40,10 @@ public class Nucleus
 		
 		cfg.loadConfiguration(BASEPATH+"nucleus.properties");
 		setupExecutorService();
-		setupNetty();
+		pipelineFactory.BootNetwork();
+	
 		Datastore.Connect();
 	}
-	public static void setupNetty()
-	{
-		   // Configure the server.
-		          ServerBootstrap bootstrap = new ServerBootstrap(
-		                 new NioServerSocketChannelFactory(
-		                         Executors.newCachedThreadPool(),
-		                         Executors.newCachedThreadPool()));
-		          
-       
-
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-        	
-        	              public ChannelPipeline getPipeline() throws Exception {
-        	                  return Channels.pipeline();
-        	              }
-        	        });
-     
-        int serverPort = getConfig().fetchInteger("net.adil.nucleus.tcp.port");
-       
-        try {
-            bootstrap.bind(new InetSocketAddress("127.0.0.1",serverPort));
-        } catch (ChannelException ce) {
-       logger.warning(ce.getLocalizedMessage());
-            
-            return;
-        }
-        logger.info("Networking enabled");
-  }
 	
 	  public static void setupExecutorService() {
 	        logger.info("Attempting to configure the executor service");

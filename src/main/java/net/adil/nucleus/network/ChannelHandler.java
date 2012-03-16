@@ -2,7 +2,7 @@ package net.adil.nucleus.network;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.apache.log4j.*;
 
 import org.jboss.netty.channel.Channel;
 
@@ -26,7 +26,7 @@ public class ChannelHandler
 {
 	/*
 	 * Handle clients here
-	 * @author: Adil
+	 * @author Adil
 	 */
 	private Channel mainChannel;
 	public int clients = 0;
@@ -34,7 +34,7 @@ public class ChannelHandler
 	private Logger logger = Logger.getLogger(this.getClass().getName());
 	
 	/*
-	 * @param: Add a connection to our hashmap
+	 * @param Add a connection to our hashmap
 	 */
 	public void AddConnection(Channel channel, int id)
 	{
@@ -43,21 +43,26 @@ public class ChannelHandler
 		logger.info("Client connected");
 	}
 	/*
-	 * @param: Remove a connection
+	 * @param Remove a connection
 	 */
 	public void DestroyConnection(Channel channel)
 	{
 		this.clientMap.remove(channel);
 		channel.close();
 		logger.info("Client removed");
+		--clients; //decrement client count
+	
 	}
-	/*
-	 * @param: Write to the channel object
-	 */
-	public void write(Object message)
+	public void Write(Object message)
 	{
-		
 		this.mainChannel.write(message);
+		logger.info("Message sent" + message);
 	}
+	public void sendShutdown()
+	{
+		this.mainChannel.close();
+		logger.info("Main channel closed");
+	}
+
 	
 }
